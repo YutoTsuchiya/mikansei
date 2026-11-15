@@ -1,46 +1,44 @@
 *start
 
-[title name="走るか寝るかするメロス"]
-[hidemenubutton]
-[wait time=200]
-[freeimage layer="base"]
-
-「走るか寝るかするメロス」[l][r]
-
-メロスは激怒した。[l][r]
-
-必ず、かの邪智暴虐の王を除かねばならぬと決意した。[l][r]
-
-(中略)[l][r]
-
-ああ、何もかも、ばかばかしい。私は、醜い裏切り者だ。どうとも、勝手にするがよい。やんぬる哉。[l][r]
-メロスは...[l][r]
-
-[link target=*tag_sleep] →寝る [endlink][r]
-[link target=*tag_run] →走る [endlink][r]
-[s]
-
-*tag_sleep
-
+[eval exp="f.low = 1; f.high = 1000; f.turn = 0; f.guess = 0"]
 [cm]
+数字当てゲーム[p]
+1から1000までの整数をひとつ、心の中で決めてください。[l]
+こちらが10回以内に当てます。[l]
+予想に対して「もっと大きい」「もっと小さい」「正解！」で答えてください。[l]
+[link target=*guess]ゲーム開始[endlink][s]
 
-[bg storage=sleep.jpg time=500]
-
-メロスは死んだように深く眠った。[l][r]
-勇者は、ひどく赤面した。[r]
-
-【 BAD END 】[l][cm]
-
-[jump target=*start]
-
-*tag_run
-
-[bg storage=run.jpg time=500]
-
+*guess
+[eval exp="f.turn += 1; f.guess = Math.floor((f.low + f.high) / 2)"]
 [cm]
-メロスは黒い風のように走った。[l][r]
-陽は、ゆらゆら地平線に没し、まさに最後の一片の残光も、消えようとした時、メロスは疾風の如く刑場に突入した。間に合った。[r]
+第&f.turn 回目の予想です。[l]
+あなたの数字は「&f.guess」ですか？[l]
+[link target=*correct]正解！[endlink][r]
+[link target=*too_high]もっと大きい[endlink][r]
+[link target=*too_low]もっと小さい[endlink][s]
 
-【 GOOD END 】[l][cm]
+*too_high
+[eval exp="f.low = f.guess + 1; f.next = (f.low > f.high) ? '*inconsistent' : (f.turn >= 10 ? '*failed' : '*guess')"]
+[jump target="&f.next"]
 
-[jump target=*start]
+*too_low
+[eval exp="f.high = f.guess - 1; f.next = (f.low > f.high) ? '*inconsistent' : (f.turn >= 10 ? '*failed' : '*guess')"]
+[jump target="&f.next"]
+
+*correct
+[cm]
+やった！&f.turn 回で当たりました。[p]
+二分法なら、1000個の候補も10回以内で絞り込めます。[l]
+[link target=*start]もう一度遊ぶ[endlink][s]
+
+*failed
+[cm]
+10回以内に当てられませんでした。[p]
+答えは&f.low から&f.high のどこかだったはずです。[l]
+[link target=*start]もう一度遊ぶ[endlink][s]
+
+*inconsistent
+[cm]
+答えが候補の範囲から外れてしまいました。[p]
+「もっと大きい／もっと小さい」の答えが途中で食い違ったようです。[l]
+[link target=*start]もう一度遊ぶ[endlink][s]
