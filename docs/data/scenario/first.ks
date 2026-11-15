@@ -121,17 +121,21 @@ var readingScreen = $("<div class='reader_screen'></div>").css({
     padding: "max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left))",
     background: "rgba(4, 10, 22, 0.97)", fontFamily: "sans-serif"
 }).appendTo("body");
+readingScreen.css("height", "100dvh");
 
-var panel = $("<div></div>").css({
+var panel = $("<div class='reader_article_panel'></div>").css({
     position: "relative", width: "100%", flex: "1 1 auto", minHeight: "0",
     overflowY: "scroll", overscrollBehavior: "contain", touchAction: "pan-y",
-    boxSizing: "border-box", padding: "clamp(16px, 4vw, 32px)",
+    boxSizing: "border-box", padding: "clamp(16px, 4vw, 32px)", paddingBottom: "90px",
     color: "#f6f0e6", background: "rgba(20, 29, 45, 0.96)",
     border: "1px solid rgba(224, 190, 130, 0.7)", borderRadius: "12px",
     fontFamily: "sans-serif", fontSize: "clamp(18px, 2.5vh, 24px)", lineHeight: "1.8",
     whiteSpace: "pre-wrap", overflowWrap: "anywhere",
     WebkitOverflowScrolling: "touch", WebkitTouchCallout: "none"
 });
+// TyranoScript が document/body の touchmove を preventDefault するため、
+// 本文内のスワイプだけは祖先へ伝えず、ブラウザ標準のスクロールを残す。
+panel.on("touchmove", function(event) { event.stopPropagation(); });
 var heading = $("<div></div>").text(f.article_title).css({
     color: "#ffe0a6", fontSize: "clamp(24px, 4vh, 32px)", fontWeight: "bold", marginBottom: "12px"
 });
@@ -142,7 +146,9 @@ var body = $("<div></div>").text(f.article_text);
 panel.append(heading, count, body);
 
 var finish = $("<button type='button'></button>").text("> 読み終わった").css({
-    flex: "0 0 auto", alignSelf: "center", width: "min(90%, 360px)", minHeight: "56px",
+    display: "block", position: "fixed", zIndex: 2147483647,
+    left: "50%", bottom: "max(14px, env(safe-area-inset-bottom))", transform: "translateX(-50%)",
+    width: "min(90vw, 360px)", minHeight: "60px",
     border: "1px solid #f0cf8b", borderRadius: "10px", background: "#24334d",
     color: "#fff0d3", fontSize: "clamp(18px, 3vh, 24px)", fontWeight: "bold", cursor: "pointer"
 });
