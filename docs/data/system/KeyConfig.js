@@ -79,14 +79,14 @@ var __tyrano_key_config = {
     "mouse": {
         "right": "hidemessage", //右クリックの動作
         "center": "menu", //センターボタンをクリック
-        "wheel_up": "backlog", // ホイールをアップした時の動作
+        "wheel_up": "", // ホイールをアップした時の動作（ログ表示を無効化）
         "wheel_down": "next" //ホイールをダウンした時の動作
     },
 
     //ジェスチャー
     "gesture": {
         "swipe_up_1": {
-            "action": "backlog"
+            "action": ""
         },
         "swipe_left_1": {
             "action": "auto"
