@@ -3,32 +3,79 @@
 [iscript]
 $(".title_logo").remove();
 $(".layer_free").empty().hide();
+$(".reader_screen").remove();
+window.showReaderChoices = function(titleText, choices) {
+    var screen = $("<div class='reader_screen'></div>").css({
+        position: "fixed", inset: "0", width: "100vw", height: "100vh", zIndex: 2147483647,
+        display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
+        boxSizing: "border-box", gap: "16px", padding: "24px",
+        background: "linear-gradient(145deg, #101a2d, #263c56)", color: "#fff0d3", fontFamily: "sans-serif"
+    });
+    var heading = $("<h1></h1>").text(titleText).css({
+        width: "min(90vw, 760px)", margin: "0 0 12px", textAlign: "center",
+        fontSize: "clamp(1.4rem, 5vw, 2.3rem)", lineHeight: "1.5", whiteSpace: "pre-line"
+    });
+    screen.append(heading);
+    choices.forEach(function(choice) {
+        var button = $("<button type='button'></button>").text("> " + choice[0]).css({
+            width: "min(90vw, 760px)", minHeight: "58px", padding: "12px 18px",
+            border: "1px solid #f0cf8b", borderRadius: "10px", background: "#24334d",
+            color: "#fff0d3", fontSize: "clamp(1.1rem, 4vw, 1.4rem)", lineHeight: "1.4", cursor: "pointer"
+        });
+        button.on("click", function() { screen.remove(); TYRANO.kag.ftag.nextOrderWithLabel(choice[1]); });
+        screen.append(button);
+    });
+    screen.appendTo("body");
+};
 [endscript]
-[layopt layer="message0" visible="true"]
-[bg storage="read-meter-title.png" time="1200"]
-[wait time="300"]
 [iscript]
-var title = $("<div class='title_logo'></div>").text("読む速度を測ろう").css({
-    position: "absolute", left: "80px", top: "285px", zIndex: 2147483647,
-    color: "#fff0d3", fontFamily: "sans-serif", fontSize: "70px", fontWeight: "bold",
-    lineHeight: "1.25", textShadow: "2px 3px 8px #101a35", whiteSpace: "nowrap"
+var titleScreen = $("<div class='reader_screen'></div>").css({
+    position: "fixed", inset: "0", width: "100vw", height: "100vh", zIndex: 2147483647,
+    display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
+    boxSizing: "border-box", padding: "24px", textAlign: "center",
+    background: "linear-gradient(rgba(5,12,28,.28), rgba(5,12,28,.68)), url('./data/bgimage/read-meter-title.png') center / cover no-repeat",
+    fontFamily: "sans-serif"
 });
-title.hide();
-$("#tyrano_base").append(title);
-title.fadeIn(900);
+var title = $("<h1></h1>").text("読む速度を測ろう").css({
+    margin: "0 0 36px", color: "#fff0d3", fontSize: "clamp(2.2rem, 8vw, 4.6rem)",
+    fontWeight: "bold", lineHeight: "1.35", textShadow: "2px 3px 8px #101a35"
+});
+var startButton = $("<button type='button'></button>").text("> はじめる").css({
+    minWidth: "min(72vw, 320px)", minHeight: "64px", padding: "14px 28px",
+    border: "2px solid #f0cf8b", borderRadius: "12px", background: "rgba(36,51,77,.94)",
+    color: "#fff0d3", fontSize: "clamp(1.25rem, 4vw, 1.7rem)", fontWeight: "bold", cursor: "pointer"
+});
+startButton.on("click", function() { titleScreen.remove(); TYRANO.kag.ftag.nextOrderWithLabel("menu"); });
+titleScreen.append(title, startButton).appendTo("body");
 [endscript]
-[wait time="950"]
-[link target=*menu] > はじめる [endlink][s]
+[s]
 
 *menu
 [cm]
 [iscript]
-$(".title_logo").remove();
+$(".reader_screen").remove();
+var menuScreen = $("<div class='reader_screen'></div>").css({
+    position: "fixed", inset: "0", width: "100vw", height: "100vh", zIndex: 2147483647,
+    display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
+    boxSizing: "border-box", gap: "18px", padding: "24px",
+    background: "linear-gradient(145deg, #101a2d, #263c56)", color: "#fff0d3", fontFamily: "sans-serif"
+});
+var menuTitle = $("<h1></h1>").text("読みたい文章を選んでください").css({
+    margin: "0 0 12px", textAlign: "center", fontSize: "clamp(1.5rem, 6vw, 2.5rem)", lineHeight: "1.4"
+});
+menuScreen.append(menuTitle);
+[["ギリシャ神話", "pick1"], ["経済", "pick2"], ["渡辺研", "pick3"]].forEach(function(item) {
+    var button = $("<button type='button'></button>").text("> " + item[0]).css({
+        width: "min(88vw, 420px)", minHeight: "60px", padding: "12px 20px",
+        border: "1px solid #f0cf8b", borderRadius: "10px", background: "#24334d",
+        color: "#fff0d3", fontSize: "clamp(1.2rem, 4vw, 1.5rem)", cursor: "pointer"
+    });
+    button.on("click", function() { menuScreen.remove(); TYRANO.kag.ftag.nextOrderWithLabel(item[1]); });
+    menuScreen.append(button);
+});
+menuScreen.appendTo("body");
 [endscript]
-読みたい文章を選んでください。[r]
-[link target=*pick1] > ギリシャ神話 [endlink][r]
-[link target=*pick2] > 経済 [endlink][r]
-[link target=*pick3] > 渡辺研 [endlink][s]
+[s]
 
 *pick1
 [cm]
@@ -57,28 +104,36 @@ $.loadText("./data/text" + f.article_id + ".txt", function(text) {
 
 *show_article
 [cm]
-タイトル：[emb exp="f.article_title"][r]
-本文：[emb exp="f.char_count"]文字です。[r]
-[link target=*begin_read] > 読み始める [endlink][s]
+[iscript]
+window.showReaderChoices(f.article_title + " ・ 本文 " + f.char_count + " 文字", [["読み始める", "begin_read"]]);
+[endscript]
+[s]
 
 *begin_read
 [cm]
 [eval exp="f.started_at = Date.now()"]
 [iscript]
 var host = TYRANO.kag.layer.getFreeLayer();
-host.empty().show().css({"z-index": "999999", "background": "rgba(4, 10, 22, 0.92)"});
+host.empty().hide();
+var readingScreen = $("<div class='reader_screen'></div>").css({
+    position: "fixed", inset: "0", width: "100vw", height: "100vh", zIndex: 2147483647,
+    display: "flex", flexDirection: "column", boxSizing: "border-box", gap: "12px",
+    padding: "max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left))",
+    background: "rgba(4, 10, 22, 0.97)", fontFamily: "sans-serif"
+}).appendTo("body");
 
 var panel = $("<div></div>").css({
-    position: "absolute", left: "60px", top: "35px", width: "1160px", height: "535px",
-    overflowY: "auto", boxSizing: "border-box", padding: "28px 42px",
+    position: "relative", width: "100%", flex: "1 1 auto", minHeight: "0",
+    overflowY: "scroll", overscrollBehavior: "contain", touchAction: "pan-y",
+    boxSizing: "border-box", padding: "clamp(16px, 4vw, 32px)",
     color: "#f6f0e6", background: "rgba(20, 29, 45, 0.96)",
     border: "1px solid rgba(224, 190, 130, 0.7)", borderRadius: "12px",
-    fontFamily: "sans-serif", fontSize: "24px", lineHeight: "1.85",
+    fontFamily: "sans-serif", fontSize: "clamp(18px, 2.5vh, 24px)", lineHeight: "1.8",
     whiteSpace: "pre-wrap", overflowWrap: "anywhere",
-    WebkitOverflowScrolling: "touch"
+    WebkitOverflowScrolling: "touch", WebkitTouchCallout: "none"
 });
 var heading = $("<div></div>").text(f.article_title).css({
-    color: "#ffe0a6", fontSize: "32px", fontWeight: "bold", marginBottom: "12px"
+    color: "#ffe0a6", fontSize: "clamp(24px, 4vh, 32px)", fontWeight: "bold", marginBottom: "12px"
 });
 var count = $("<div></div>").text("本文 " + f.char_count + " 文字").css({
     color: "#bdc9dc", fontSize: "16px", marginBottom: "18px"
@@ -87,15 +142,15 @@ var body = $("<div></div>").text(f.article_text);
 panel.append(heading, count, body);
 
 var finish = $("<button type='button'></button>").text("> 読み終わった").css({
-    position: "absolute", left: "490px", top: "600px", width: "300px", height: "62px",
+    flex: "0 0 auto", alignSelf: "center", width: "min(90%, 360px)", minHeight: "56px",
     border: "1px solid #f0cf8b", borderRadius: "10px", background: "#24334d",
-    color: "#fff0d3", fontSize: "24px", fontWeight: "bold", cursor: "pointer"
+    color: "#fff0d3", fontSize: "clamp(18px, 3vh, 24px)", fontWeight: "bold", cursor: "pointer"
 });
 finish.on("click", function() {
-    host.empty().hide();
+    readingScreen.remove();
     TYRANO.kag.ftag.nextOrderWithLabel("read_done");
 });
-host.append(panel, finish);
+readingScreen.append(panel, finish);
 [endscript]
 [s]
 
@@ -106,24 +161,24 @@ host.append(panel, finish);
 
 *quiz1
 [cm]
-内容クイズ：ゼウスは、クロノスに飲み込まれずに済んだのは誰のおかげですか？[r]
-[link target=*answer_correct] > 母レア [endlink][r]
-[link target=*answer_wrong] > スパルタ王妃ヘレネ [endlink][r]
-[link target=*answer_wrong] > 女神アテナ [endlink][s]
+[iscript]
+window.showReaderChoices("ゼウスは、クロノスに飲み込まれずに済んだのは誰のおかげですか？", [["母レア", "answer_correct"], ["スパルタ王妃ヘレネ", "answer_wrong"], ["女神アテナ", "answer_wrong"]]);
+[endscript]
+[s]
 
 *quiz2
 [cm]
-内容クイズ：文章で説明されていた「比較優位」の基準は何ですか？[r]
-[link target=*answer_correct] > より小さな機会費用で生産できること [endlink][r]
-[link target=*answer_wrong] > どの財も相手より多く生産できること [endlink][r]
-[link target=*answer_wrong] > すべての財を同じ価格で売ること [endlink][s]
+[iscript]
+window.showReaderChoices("文章で説明されていた「比較優位」の基準は何ですか？", [["より小さな機会費用で生産できること", "answer_correct"], ["どの財も相手より多く生産できること", "answer_wrong"], ["すべての財を同じ価格で売ること", "answer_wrong"]]);
+[endscript]
+[s]
 
 *quiz3
 [cm]
-内容クイズ：渡辺研究室では、スパコンの計算能力を主にどの方向に使ってきましたか？[r]
-[link target=*answer_correct] > 扱う粒子の数を増やす [endlink][r]
-[link target=*answer_wrong] > 計算を使わず手作業だけで研究する [endlink][r]
-[link target=*answer_wrong] > 計算機の台数を減らす [endlink][s]
+[iscript]
+window.showReaderChoices("渡辺研究室では、スパコンの計算能力を主にどの方向に使ってきましたか？", [["扱う粒子の数を増やす", "answer_correct"], ["計算を使わず手作業だけで研究する", "answer_wrong"], ["計算機の台数を減らす", "answer_wrong"]]);
+[endscript]
+[s]
 
 *answer_correct
 [cm]
@@ -137,13 +192,9 @@ host.append(panel, finish);
 
 *results
 [cm]
-[if exp="f.answer_correct"]
-内容クイズ：正解です。[r]
-[else]
-内容クイズ：不正解です。[r]
-[endif]
-タイトル：[emb exp="f.article_title"][r]
-本文の文字数：[emb exp="f.char_count"]文字[r]
-読了時間：[emb exp="f.elapsed_sec"]秒[r]
-読書速度：[emb exp="f.moji_per_min"]文字/分[r]
-[link target=*menu] > 別の文章を読む [endlink][s]
+[iscript]
+var resultText = f.answer_correct ? "正解です" : "不正解です";
+var resultSummary = resultText + "\n\n" + f.article_title + "\n本文 " + f.char_count + " 文字\n読了時間 " + f.elapsed_sec + " 秒\n読書速度 " + f.moji_per_min + " 文字/分";
+window.showReaderChoices(resultSummary, [["別の文章を読む", "menu"]]);
+[endscript]
+[s]
